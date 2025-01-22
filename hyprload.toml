@@ -1,0 +1,10 @@
+[hyprbars]
+description = "A plugin to add title bars to windows"
+version = "1.0"
+authors = ["saucesaft"]
+
+[hyprbars.build]
+output = "hyprbars/hyprbars.so"
+steps = [
+    "make -C hyprbars all",
+]
