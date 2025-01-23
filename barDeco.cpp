@@ -194,6 +194,52 @@ void CHyprBar::renderText(SP<CTexture> out, const std::string& text, const CColo
     cairo_surface_destroy(CAIROSURFACE);
 }
 
+void CHyprBar::renderWindowBorder(const CColor& color, int thickness) {
+    if (m_bAssignedBox.empty())
+        return;
+
+    const auto& assignedBox = m_bAssignedBox;
+
+    const int width = assignedBox.w;
+    const int height = assignedBox.h;
+
+    // Create a Cairo surface
+    const auto CAIROSURFACE = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+    const auto CAIRO = cairo_create(CAIROSURFACE);
+
+    // Clear the pixmap
+    cairo_save(CAIRO);
+    cairo_set_operator(CAIRO, CAIRO_OPERATOR_CLEAR);
+    cairo_paint(CAIRO);
+    cairo_restore(CAIRO);
+
+    // Set the color and thickness
+    cairo_set_source_rgba(CAIRO, color.r, color.g, color.b, color.a);
+    cairo_set_line_width(CAIRO, thickness);
+
+    // Draw the rectangle (border)
+    cairo_rectangle(CAIRO, 0, 0, width, height);
+    cairo_stroke(CAIRO);
+
+    // Copy the data to an OpenGL texture
+    const auto DATA = cairo_image_surface_get_data(CAIROSURFACE);
+    m_pTextTex->allocate();
+    glBindTexture(GL_TEXTURE_2D, m_pTextTex->m_iTexID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+#ifndef GLES2
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_BLUE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+#endif
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, DATA);
+
+    // Clean up Cairo
+    cairo_destroy(CAIRO);
+    cairo_surface_destroy(CAIROSURFACE);
+}
+
 void CHyprBar::renderBarTitle(const Vector2D& bufferSize, const float scale) {
     static auto* const PCOLOR            = (Hyprlang::INT* const*)HyprlandAPI::getConfigValue(PHANDLE, "plugin:hyprcde:col.text")->getDataStaticPtr();
     static auto* const PSIZE             = (Hyprlang::INT* const*)HyprlandAPI::getConfigValue(PHANDLE, "plugin:hyprcde:bar_text_size")->getDataStaticPtr();
@@ -278,6 +324,11 @@ void CHyprBar::renderBarTitle(const Vector2D& bufferSize, const float scale) {
     // delete cairo
     cairo_destroy(CAIRO);
     cairo_surface_destroy(CAIROSURFACE);
+
+    // Render the rectangle around the window
+    const CColor borderColor(1.0, 0.0, 0.0, 1.0);  // Red color for the border
+    const int borderThickness = 2;                 // Thickness of the border
+    renderWindowBorder(borderColor, borderThickness);
 }
 
 void CHyprBar::renderBarButtons(const Vector2D& bufferSize, const float scale) {
