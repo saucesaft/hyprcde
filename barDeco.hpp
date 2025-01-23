@@ -56,6 +56,7 @@ class CHyprBar : public IHyprWindowDecoration {
     Vector2D              cursorRelativeToBar();
 
     void                  renderBarTitle(const Vector2D& bufferSize, const float scale);
+    void                  renderWindowBorder(const CColor& color, int thickness);
     void                  renderText(SP<CTexture> out, const std::string& text, const CColor& color, const Vector2D& bufferSize, const float scale, const int fontSize);
     void                  renderBarButtons(const Vector2D& bufferSize, const float scale);
     void                  renderBarButtonsText(CBox* barBox, const float scale, const float a);
