@@ -1,0 +1,11 @@
+[repository]
+name = "hyprcde"
+authors = ["saucesaft"]
+
+[hyprfocus]
+description = "CDE-like window decorations for hyprland."
+authors = ["saucesaft, (forked from) Vaxry"]
+output = "hyprcde.so"
+build = [
+    "make all"
+]

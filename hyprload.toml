@@ -4,7 +4,7 @@ version = "1.0"
 authors = ["saucesaft"]
 
 [hyprcde.build]
-output = "hyprcde/hyprcde.so"
+output = "hyprcde.so"
 steps = [
-    "make -C hyprcde all",
+    "make all",
 ]
